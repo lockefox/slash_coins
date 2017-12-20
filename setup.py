@@ -109,7 +109,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'slash_coin_launcher:slash_coins.flask_launcher:run_main'
+            'slash_coin_launcher=slash_coins.flask_launcher:run_main'
         ]
     },
     install_requires=[
