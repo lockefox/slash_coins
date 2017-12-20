@@ -23,7 +23,7 @@ Only supports Python 3.5+
 Developers
 ----------
 
-.. code_block::
+.. code-block::
     
     pip install -e .
     cp scripts/app.cfg scripts/app_local.cfg
@@ -35,7 +35,7 @@ Install requirements in a `virtualenv`_ and use the built-in launcher to run on 
 Deployment
 ----------
 
-.. code_block::
+.. code-block::
     
     docker build -t slash-coins -f Dockerfile .
     docker run -d -v scripts/:/opt/slash_coins/cfg -p 8000:8000 slash-coins
