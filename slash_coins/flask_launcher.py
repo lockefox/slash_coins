@@ -3,36 +3,23 @@ from os import path
 import platform
 import logging
 
-from flask import Flask, jsonify
+from flask import Flask
+from flask_restful import Api
 
-import prosper.datareader.coins as coins
 import prosper.common.prosper_cli as p_cli
 import prosper.common.prosper_logging as prosper_logging
 import prosper.common.prosper_config as p_config
 
 from . import _version
+from . import endpoints
 
 HERE = path.abspath(path.dirname(__file__))
 
 APP = Flask(_version.PROGNAME)
-
-@APP.route('/version')
-def version_endpoint():
-    """respond with current version information"""
-    logger = logging.getLogger(_version.PROGNAME)
-    logger.info('Version Endpoint:')#' %s', payload)
-    return jsonify(
-        version=_version.__version__,
-        app_name=_version.PROGNAME
-    )
-
-@APP.route('/quote/<payload>')
-def quote_endpoint(payload):
-    """respond with quote for cryptocoin"""
-    logger = logging.getLogger(_version.PROGNAME)
-    logger.info('Quote Endpoint: %s', payload)
-    return {'hello': 'world'}
-
+API = Api(APP)
+API.add_resource(endpoints.Root, '/')
+API.add_resource(endpoints.Version, '/version')
+API.add_resource(endpoints.CoinQuote, '/coins')
 
 class FlaskLauncher(p_cli.ProsperApplication):
     PROGNAME = _version.PROGNAME

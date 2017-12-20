@@ -116,6 +116,7 @@ setup(
         'ProsperCommon',
         'ProsperDatareader',
         'Flask',
+        'Flask-RESTful',
         #'flask-script',
         'plumbum',
         'pandas',

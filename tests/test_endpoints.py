@@ -13,7 +13,7 @@ class TestVersionEndpoint:
     def test_version_happypath(self):
         """test /version normal behavior"""
         req = self.client.get(
-            url_for('version_endpoint')
+            url_for('version')
         )
 
         raw_data = json.loads(req.data.decode())
