@@ -105,7 +105,7 @@ setup(
     ],
     package_data={
         '': ['LICENSE', 'README.rst', 'changelog'],
-        'slash_coins': ['version.txt']
+        'slash_coins': ['version.txt', 'app.cfg']
     },
     entry_points={
         'console_scripts': [
@@ -113,7 +113,7 @@ setup(
         ]
     },
     install_requires=[
-        'ProsperCommon',
+        'ProsperCommon==1.3.0a0',
         'ProsperDatareader',
         'Flask',
         'Flask-RESTful',

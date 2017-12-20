@@ -5,6 +5,7 @@ Working off: https://bitbucket.org/travisthetechie/pypples/src/32f79e384133b36ae
 """
 import logging
 import json
+import platform
 
 from flask import request
 from flask_restful import Resource
@@ -42,3 +43,9 @@ class CoinQuote(Resource):
         logger = logging.getLogger(_version.PROGNAME)  # TODO: parent class + @property
         logger.info('COINQUOTE request -- %s', args)
 
+        return {
+            'color': 'green',
+            'message': 'It\'s going to be sunny tomorrow! (yey)',
+            'notify': False,
+            'message_format': 'text'
+        }
