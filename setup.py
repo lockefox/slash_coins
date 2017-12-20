@@ -27,21 +27,6 @@ def get_version(package_name):
 
     return version
 
-def hack_find_packages(include_str):
-    """patches setuptools.find_packages issue
-
-    setuptools.find_packages(path='') doesn't work as intended
-
-    Returns:
-        (:obj:`list` :obj:`str`) append <include_str>. onto every element of setuptools.find_pacakges() call
-
-    """
-    new_list = [include_str]
-    for element in find_packages(include_str):
-        new_list.append(include_str + '.' + element)
-
-    return new_list
-
 def include_all_subfiles(*args):
     """Slurps up all files in a directory (non recursive) for data_files section
 
@@ -97,6 +82,7 @@ class PyTest(TestCommand):
 with open('README.rst', 'r', 'utf-8') as f:
     README = f.read()
 
+
 setup(
     name=__package_name__,
     description='HipChat /command REST API For CryptoCoin Quotes',
@@ -107,13 +93,18 @@ setup(
     url='https://github.com/lockefox/' + __package_name__,
     license='MIT',
     classifiers=[
-        'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     keywords='prosper flask rest hipchat cryptocurrency integration',
-    packages=hack_find_packages('prosper'),
+    packages=find_packages(),
     include_package_data=True,
+    data_files=[
+        ('docs', include_all_subfiles('docs')),
+        ('scripts'), include_all_subfiles('scripts'),
+    ],
     package_data={
-        '': ['LICENSE', 'README.rst']
+        '': ['LICENSE', 'README.rst'],
     },
     install_requires=[
         'ProsperCommon',
