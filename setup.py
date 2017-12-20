@@ -101,16 +101,23 @@ setup(
     include_package_data=True,
     data_files=[
         ('docs', include_all_subfiles('docs')),
-        ('scripts'), include_all_subfiles('scripts'),
+        #('scripts'), include_all_subfiles('scripts'),
     ],
     package_data={
-        '': ['LICENSE', 'README.rst'],
+        '': ['LICENSE', 'README.rst', 'changelog'],
+        'slash_coins': ['version.txt']
+    },
+    entry_points={
+        'console_scripts': [
+            'slash_coin_launcher:slash_coins.flask_launcher:run_main'
+        ]
     },
     install_requires=[
         'ProsperCommon',
         'ProsperDatareader',
         'Flask',
-        'flask-script'
+        #'flask-script',
+        'plumbum',
         'pandas',
         'numpy',
         'requests',
