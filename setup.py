@@ -62,7 +62,7 @@ class PyTest(TestCommand):
         self.pytest_args = [
             'tests',
             '-rx',
-            '--cov=prosper/' + __library_name__,
+            '--cov=' + __library_name__,
             '--cov-report=term-missing',
             '--cov-config=.coveragerc'
         ]    #load defaults here
@@ -124,7 +124,7 @@ setup(
     ],
     tests_require=[
         'pytest',
-        'pytest_cov'
+        'pytest_cov',
         'pytest-flask',
     ],
     extras_require={

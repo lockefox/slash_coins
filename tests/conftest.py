@@ -1,7 +1,7 @@
 """configtest.py: setup pytest defaults/extensions"""
 from os import path
 
-from slash_coins import create_app
+from slash_coins.flask_launcher import APP
 import pytest
 
 import prosper.common.prosper_config as p_config
@@ -12,10 +12,5 @@ ROOT = path.dirname(HERE)
 
 @pytest.fixture
 def app():
-    my_app = create_app(
-        local_configs=p_config.ProsperConfig(
-            path.join(ROOT, 'scripts', 'app.cfg')
-        ),
-        testmode=True
-    )
-    return my_app
+    """test fixture for launching/testing Flask endpoints"""
+    return APP

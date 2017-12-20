@@ -3,7 +3,7 @@ from os import path
 import platform
 import logging
 
-from flask import Flask
+from flask import Flask, jsonify
 
 import prosper.datareader.coins as coins
 import prosper.common.prosper_cli as p_cli
@@ -16,12 +16,15 @@ HERE = path.abspath(path.dirname(__file__))
 
 APP = Flask(_version.PROGNAME)
 
-@APP.route('/version/<payload>')
-def version_endpoint(payload):
+@APP.route('/version')
+def version_endpoint():
     """respond with current version information"""
     logger = logging.getLogger(_version.PROGNAME)
-    logger.info('Version Endpoint: %s', payload)
-    return {'version': _version.__version__}
+    logger.info('Version Endpoint:')#' %s', payload)
+    return jsonify(
+        version=_version.__version__,
+        app_name=_version.PROGNAME
+    )
 
 @APP.route('/quote/<payload>')
 def quote_endpoint(payload):
