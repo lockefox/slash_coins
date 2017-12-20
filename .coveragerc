@@ -1,0 +1,8 @@
+[report]
+    omit = 
+        slash_coins/_version.py
+        slash_coins/__init__.py
+        slash_coins/exceptions.py
+
+[paths]
+    source = slash_coins
