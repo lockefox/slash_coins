@@ -18,22 +18,34 @@ from . import exceptions
 DEFAULT_LOGGER = logging.getLogger('NULL')
 DEFAULT_LOGGER.addHandler(logging.NullHandler())
 
+
 class ChatPlatform(enum.Enum):
     """help control which platform is talking to app"""
     hipchat = 'hipchat'
     slack = 'slack'
     UNKNOWN = ''
 
-def which_platform(request_data, form_data, logger=DEFAULT_LOGGER):
+def which_platform(
+        request_data,
+        form_data,
+        contents_required=False,
+        logger=DEFAULT_LOGGER,
+):
     """figure out which platform is talking to app
 
     Args:
         request_data (dict): POST JSON data
         form_data (dict): application/x-www-form-urlencoded data
+        command_required (bool): is content expected after /command
+        logger (:obj:`logging.logger`): logging handle
 
     Returns:
         enum: ChatPlatform
         list: list of commands
+
+    Raises:
+        UnkownChatPlatform: Unable to decide /command source
+        NoCommandsFound: no data found after /command
 
     """
     try:
@@ -46,8 +58,11 @@ def which_platform(request_data, form_data, logger=DEFAULT_LOGGER):
         form = {}
 
     mode = ChatPlatform.UNKNOWN
+    commands = []
     if args:
         mode = ChatPlatform.hipchat
+        commands = args['item']['message']['message'].split()
+        commands = commands[1:]  # drop /text
         logger.info(
             '--HIPCHAT METADATA: user=@%s channel=%s chat=%s',
             args['item']['message']['from']['mention_name'],
@@ -55,40 +70,92 @@ def which_platform(request_data, form_data, logger=DEFAULT_LOGGER):
             args['item']['room']['links']['self']
         )
 
-    if any([bool('hooks.slack.com' in resp) for resp in form['response_url']]):
+    elif any([bool('hooks.slack.com' in resp) for resp in form['response_url']]):
         # TODO: validate slack token
         mode = ChatPlatform.slack
+        args_list = form_data['text'][0].split()
         logger.info(
             '--SLACK METADATA: user=@%s channel=%s chat=%s',
             form['user_name'],
             form['channel_name'],
             form['team_domain']
         )
+    else:
+        logger.warning('Unable to decipher chat platform')
+        mode = ChatPlatform.UNKNOWN
 
-    commands = parse_slash_args(mode, args, form)
+    if mode == ChatPlatform.UNKNOWN:
+        raise exceptions.UnkownChatPlatform('Unable to parse which chat /command came from')
+    if not commands and contents_required:
+        raise exceptions.NoCommandsFound('Empty command string recieved')
 
     return mode, commands
 
-def parse_slash_args(mode, request_data, form_data):
-    """figure out what's on the line after the slash
+def generate_platform_response(
+        message,
+        mode,
+        do_code=False,
+        color='green',
+):
+    """pipe out results with platform-specific wrapping
 
     Args:
-        mode (enum): which platform is the app talking to
-        request_data (:obj:`dict`): POST JSON data
-        form_data (:obj:`dict`): urlencode data
+        message (str): chat response
+        mode (enum): which platform to respond to
+        do_code (bool): wrap response with code preformatting
+        color (str): color response
 
     Returns:
-        list: list of stuff after the /command
+        dict: json repsonse
 
     """
     if mode == ChatPlatform.hipchat:
-        args_list = request_data['event']['item']['message']['message'].split()
-        return args_list[:1]  #drop /command
+        if do_code:
+            message = '/code {}'.format(message)
+        return {
+            'color': color,
+            'message': message,
+            'notify': False,
+            'message_format': 'text'
+        }
 
     if mode == ChatPlatform.slack:
-        args_list = form_data['text'][0].split()
+        main_message = message
+        if do_code:
+            main_message = '`{}`'.format(message)
+        response = {
+            'text': main_message,
+            'attachments':{
+                'fallback': message,
+            }
+        }
+        slack_color = name_to_slack_color(color)
+        if slack_color:
+            response['attachments']['color'] = slack_color
 
-    raise exceptions.UnknownChatPlatform('Unable to parse request')
+        return response
+
+    raise exceptions.UnknownChatPlatform('Cannot build response')
+
+def name_to_slack_color(color_name):
+    """map hipchat color-names to slack colors
+
+    Args:
+        color_name (str): name of color
+
+    Returns:
+        str: slack color name
+
+    """
+    color_name = color_name.lower()
+    if color_name == 'green':
+        return 'good'
+    if color_name == 'yellow':
+        return 'warning'
+    if color_name == 'red':
+        return 'danger'
+    else:
+        return ''
 
 class Root(Resource):
     """root path"""
@@ -123,16 +190,41 @@ class CoinQuote(Resource):
 
         # Figure out what's coming in #
         try:
-            mode, commands = which_platform(request.data, request.form, logger=logger)
+            mode, commands = which_platform(
+                request.data, request.form, contents_required=True,logger=logger
+            )
         except Exception:
-            logger.error('COINQUOTE -- INVALID PLATFORM REQUEST', exc_info=True)
+            logger.warning('COINQUOTE -- INVALID PLATFORM REQUEST', exc_info=True)
             return
 
         logger.info('COINQUOTE request @%s: %s', mode, commands)
 
-        return {
-            'color': 'green',
-            'message': 'It\'s going to be sunny tomorrow! (yey)',
-            'notify': False,
-            'message_format': 'text'
-        }
+        ticker = ''
+        currency = 'USD'
+        try:
+            ticker = commands[0].upper()  # should always get at least 1 command
+            currency = commands[1].upper()
+        except IndexError:
+            pass
+
+        try:
+            raw_quote = coins.get_quote_cc([ticker], logger=logger, currency=currency)
+        except Exception:
+            logger.warning('COINQUOTE -- UNABLE TO GENERATE QUOTE', exc_info=True)
+            return
+
+        message = '{coin_name} {coin_price} {change_pct:+.2%} ({exchange})'.format(
+            coin_name=raw_quote.loc[0, 'FullName'],
+            coin_price=raw_quote.loc[0, 'PRICE'],
+            change_pct=raw_quote.loc[0, 'CHANGEPCT24HOUR'],
+            exchange=raw_quote.loc[0, 'LASTMARKET']
+        )
+        logger.info('quote: `%s`', message)
+
+        try:
+            response = generate_platform_response(message, mode, do_code=True)
+        except Exception:
+            logger.error('COINQUOTE -- UNABLE TO GENERATE JSON RESPONSE')
+            return
+
+        return response

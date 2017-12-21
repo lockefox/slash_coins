@@ -114,7 +114,7 @@ setup(
     },
     install_requires=[
         'ProsperCommon==1.3.0a0',
-        'ProsperDatareader',
+        'ProsperDatareader>=2.0.0',
         'Flask',
         'Flask-RESTful',
         'plumbum',

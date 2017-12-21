@@ -6,3 +6,6 @@ class SlashCoinsException(Exception):
 class UnknownChatPlatform(SlashCoinsException):
     """got a request and don't know what to do with it"""
     pass
+class NoCommandsFound(SlashCoinsException):
+    """no classifiers after /command found"""
+    pass
