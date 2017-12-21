@@ -157,6 +157,24 @@ def name_to_slack_color(color_name):
     else:
         return ''
 
+def bot_fail_message(message, mode):
+    """generate useful sorry message
+
+    Args
+        message (str): error message
+        mode (enum): which platform to respond to
+
+    Returns:
+        str: error response
+
+    """
+    if mode == ChatPlatform.hipchat:
+        return '{} (shrug)'.format(message)
+
+    if mode == ChatPlatform.slack:
+        return '/shrug {}'.format(message)
+
+
 class Root(Resource):
     """root path"""
     def get(self):
@@ -211,20 +229,17 @@ class CoinQuote(Resource):
             raw_quote = coins.get_quote_cc([ticker], logger=logger, currency=currency)
         except Exception:
             logger.warning('COINQUOTE -- UNABLE TO GENERATE QUOTE', exc_info=True)
-            return
+            return generate_platform_response(
+                bot_fail_message('Can\'t resolve \'{}\''.format(commands), mode),
+                mode
+            )
 
         message = '{coin_name} {coin_price} {change_pct:+.2%} ({exchange})'.format(
             coin_name=raw_quote.loc[0, 'FullName'],
             coin_price=raw_quote.loc[0, 'PRICE'],
-            change_pct=raw_quote.loc[0, 'CHANGEPCT24HOUR'],
+            change_pct=raw_quote.loc[0, 'CHANGEPCT24HOUR']/100,
             exchange=raw_quote.loc[0, 'LASTMARKET']
         )
         logger.info('quote: `%s`', message)
 
-        try:
-            response = generate_platform_response(message, mode, do_code=True)
-        except Exception:
-            logger.error('COINQUOTE -- UNABLE TO GENERATE JSON RESPONSE')
-            return
-
-        return response
+        return generate_platform_response(message, mode, do_code=True)
