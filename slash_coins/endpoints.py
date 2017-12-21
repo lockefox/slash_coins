@@ -6,12 +6,30 @@ Working off: https://bitbucket.org/travisthetechie/pypples/src/32f79e384133b36ae
 import logging
 import json
 import platform
+import enum
 
 from flask import request
 from flask_restful import Resource
 
 import prosper.datareader.coins as coins
 from . import _version
+
+class ChatPlatform(enum.Enum):
+    """help control which platform is talking to app"""
+    hipchat = 'hipchat'
+    slack = 'slack'
+    UNKNOWN = ''
+
+def which_platform(request_data):
+    """figure out which platform is talking to app
+
+    Args:
+        request_data (dict): POST data
+
+    Returns:
+        enum: ChatPlatform
+
+    """
 
 class Root(Resource):
     """root path"""
@@ -34,14 +52,27 @@ class Version(Resource):
             'version': _version.__version__,
             'app_name': _version.PROGNAME
         }
+    def post(self):
+        """HTTP POST -- respond via /command"""
+        pass
 
 class CoinQuote(Resource):
     """generate quote for desired cryptocoin"""
     def post(self):
         """HTTP POST behavior"""
-        args = json.loads(request.data)
+        try:
+            args = json.loads(request.data)
+        except Exception:
+            args = {}
+
+        try:
+            headers = request.headers
+        except Exception:
+            headers = {}
+
+
         logger = logging.getLogger(_version.PROGNAME)  # TODO: parent class + @property
-        logger.info('COINQUOTE request -- %s', args)
+        logger.info('COINQUOTE request -- \n\t%s\n\t%s', args, headers)
 
         return {
             'color': 'green',
