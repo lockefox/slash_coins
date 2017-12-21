@@ -20,17 +20,24 @@ class ChatPlatform(enum.Enum):
     slack = 'slack'
     UNKNOWN = ''
 
-def which_platform(request_data):
+def which_platform(request_data, form_data):
     """figure out which platform is talking to app
 
     Args:
-        request_data (dict): POST data
+        request_data (dict): POST JSON data
+        form_data (dict): application/x-www-form-urlencoded data
 
     Returns:
         enum: ChatPlatform
 
     """
-    pass
+    if request_data:
+        return ChatPlatform.hipchat
+
+    if any([bool('hooks.slack.com' in resp) for resp in form_data['response_url']]):
+        return ChatPlatform.slack
+
+    return ChatPlatform.UNKNOWN
 
 class Root(Resource):
     """root path"""
@@ -67,13 +74,14 @@ class CoinQuote(Resource):
             args = {}
 
         try:
-            headers = request.headers
+            form = dict(request.form)
         except Exception:
-            headers = {}
+            form = {}
 
+        mode = which_platform(args, form)
 
         logger = logging.getLogger(_version.PROGNAME)  # TODO: parent class + @property
-        logger.info('COINQUOTE request -- %s -- %s', args, headers)
+        logger.info('COINQUOTE request @%s -- %s -- %s', mode, args, form)
 
         return {
             'color': 'green',
