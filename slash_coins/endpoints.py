@@ -30,6 +30,7 @@ def which_platform(request_data):
         enum: ChatPlatform
 
     """
+    pass
 
 class Root(Resource):
     """root path"""
@@ -72,7 +73,7 @@ class CoinQuote(Resource):
 
 
         logger = logging.getLogger(_version.PROGNAME)  # TODO: parent class + @property
-        logger.info('COINQUOTE request -- \n\t%s\n\t%s', args, headers)
+        logger.info('COINQUOTE request -- %s -- %s', args, headers)
 
         return {
             'color': 'green',
