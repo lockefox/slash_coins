@@ -126,6 +126,8 @@ setup(
         'pytest',
         'pytest_cov',
         'pytest-flask',
+        'shortuuid',
+        'jsonschema',
     ],
     extras_require={
         'dev':[

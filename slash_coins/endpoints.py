@@ -57,6 +57,7 @@ def which_platform(
     except Exception:
         form = {}
 
+    logger.debug(form)
     mode = ChatPlatform.UNKNOWN
     commands = []
     if args:
@@ -70,15 +71,15 @@ def which_platform(
             args['item']['room']['links']['self']
         )
 
-    elif any([bool('hooks.slack.com' in resp) for resp in form['response_url']]):
+    elif 'hooks.slack.com/commands' in form['response_url'][0]:
         # TODO: validate slack token
         mode = ChatPlatform.slack
-        args_list = form_data['text'][0].split()
+        commands = form['text'][0].split()
         logger.info(
             '--SLACK METADATA: user=@%s channel=%s chat=%s',
-            form['user_name'],
-            form['channel_name'],
-            form['team_domain']
+            form['user_name'][0],
+            form['channel_name'][0],
+            form['team_domain'][0]
         )
     else:
         logger.warning('Unable to decipher chat platform')
@@ -154,8 +155,8 @@ def name_to_slack_color(color_name):
         return 'warning'
     if color_name == 'red':
         return 'danger'
-    else:
-        return ''
+
+    return ''
 
 def bot_fail_message(message, mode):
     """generate useful sorry message
@@ -173,6 +174,8 @@ def bot_fail_message(message, mode):
 
     if mode == ChatPlatform.slack:
         return '/shrug {}'.format(message)
+
+    return message
 
 
 class Root(Resource):
@@ -215,7 +218,7 @@ class CoinQuote(Resource):
             logger.warning('COINQUOTE -- INVALID PLATFORM REQUEST', exc_info=True)
             return
 
-        logger.info('COINQUOTE request @%s: %s', mode, commands)
+        logger.info('COINQUOTE request `%s`: %s', mode, commands)
 
         ticker = ''
         currency = 'USD'
