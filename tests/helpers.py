@@ -1,6 +1,7 @@
 """helpers.py: tests global scratch space"""
 from os import path
 import uuid
+from collections import OrderedDict
 
 import shortuuid
 

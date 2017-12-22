@@ -58,6 +58,7 @@ def which_platform(
         form = {}
 
     logger.debug(form)
+    logger.debug(args)
     mode = ChatPlatform.UNKNOWN
     commands = []
     if args:
