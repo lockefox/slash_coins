@@ -17,7 +17,6 @@ HERE = path.abspath(path.dirname(__file__))
 
 APP = Flask(_version.PROGNAME)
 API = Api(APP)
-API.add_resource(endpoints.Root, '/')
 API.add_resource(endpoints.Version, '/version')
 API.add_resource(endpoints.CoinQuote, '/coins')
 

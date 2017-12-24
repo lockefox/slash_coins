@@ -15,37 +15,40 @@ from . import exceptions
 from . import utils
 
 
-class Root(Resource):
-    """root path"""
-    def get(self):
-        """HTTP GET behavior"""
-        logger = logging.getLogger(_version.PROGNAME)
-        logger.info('ROOT request')
-        logger.debug(request.data)
-        return {
-            'result': 'OK'
-        }
-
 class Version(Resource):
     """return version information about app"""
+    version_payload = {
+        'version': _version.__version__,
+        'app_name': _version.PROGNAME
+    }
     def get(self):
         """HTTP GET behavior"""
         logger = logging.getLogger(_version.PROGNAME)  # TODO: parent class + @property
         logger.info('VERSION request')
-        return {
-            'version': _version.__version__,
-            'app_name': _version.PROGNAME
-        }
+        return self.version_payload
+
     def post(self):
         """HTTP POST -- respond via /command"""
-        pass
+        logger = logging.getLogger(_version.PROGNAME)  # TODO: parent class + @property
+        # Figure out what's coming in #
+        try:
+            mode, commands = utils.which_platform(
+                request.data, request.form, contents_required=True,logger=logger
+            )
+        except Exception:
+            logger.warning('VERSION -- INVALID PLATFORM REQUEST', exc_info=True)
+            return
+
+        logger.info('VERSION request -- `%s`: %s', mode, commands)
+
+        return utils.generate_platform_response(str(self.version_payload), mode)
+
 
 class CoinQuote(Resource):
     """generate quote for desired cryptocoin"""
     def post(self):
         """HTTP POST behavior"""
         logger = logging.getLogger(_version.PROGNAME)  # TODO: parent class + @property
-
         # Figure out what's coming in #
         try:
             mode, commands = utils.which_platform(
@@ -55,14 +58,14 @@ class CoinQuote(Resource):
             logger.warning('COINQUOTE -- INVALID PLATFORM REQUEST', exc_info=True)
             return
 
-        logger.info('COINQUOTE request `%s`: %s', mode, commands)
+        logger.info('COINQUOTE request -- `%s`: %s', mode, commands)
 
         ticker = ''
         currency = 'USD'
         try:
             ticker = commands[0].upper()  # should always get at least 1 command
             currency = commands[1].upper()
-        except IndexError:
+        except IndexError:  # pragma: no cover
             pass
 
         try:

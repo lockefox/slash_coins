@@ -1,6 +1,7 @@
 """test_endpoints.py: validate endpoints return as expected"""
 from os import path
 import json
+import copy
 
 import jsonschema
 import pytest
@@ -21,6 +22,34 @@ class TestVersionEndpoint:
 
         assert req.json['version'] == _version.__version__
         assert req.json['app_name'] == _version.PROGNAME
+
+    def test_version_slack(self):
+        """make sure /version POST endpoint works as advertised -- SLACK"""
+        req = self.client.post(
+            url_for('version'),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            data=helpers.SAMPLE_SLACK_JSON
+        )
+        jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
+        # TODO: validate contents
+
+    def test_version_hipchat(self):
+        """make sure /version POST endpoint works as advertised -- HIPCHAT"""
+        req = self.client.post(
+            url_for('version'),
+            data=json.dumps(helpers.SAMPLE_HIPCHAT_JSON)
+        )
+        jsonschema.validate(req.json, helpers.HIPCHAT_RESPONSE_SCHEMA)
+        # TODO: validate contents
+
+    def test_version_unknown(self):
+        """make sure /version POST endpoint works as advertised -- UNKNOWN"""
+        req = self.client.post(
+            url_for('version'),
+            data=''
+        )
+        assert not req.json
+
 
 @pytest.mark.usefixtures('client_class')
 class TestCoinQuoteEndpoint:
@@ -45,3 +74,38 @@ class TestCoinQuoteEndpoint:
 
         jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
         assert 'Ethereum' in req.json['text']
+
+    def test_coinquote_unknown(self):
+        """test /coins normal behavior -- SLACK"""
+        req = self.client.post(
+            url_for('coinquote'),
+            data=''
+        )
+        assert not req.json
+
+    def test_coinquote_bad_ticker_hipchat(self):
+        """validate unkown ticker -- HIPCHAT"""
+        bad_hipchat_json = copy.deepcopy(helpers.SAMPLE_HIPCHAT_JSON)
+        bad_hipchat_json['item']['message']['message'] = '/test fakecoin'
+
+        req = self.client.post(
+            url_for('coinquote'),
+            data=json.dumps(bad_hipchat_json)
+        )
+
+        jsonschema.validate(req.json, helpers.HIPCHAT_RESPONSE_SCHEMA)
+        assert req.json['message'] == 'Can\'t resolve \'[\'fakecoin\']\' (shrug)'
+
+    def test_coinquote_bad_ticker_slack(self):
+        """validate unkown ticker -- SLACK"""
+        bad_slack_json = copy.deepcopy(helpers.SAMPLE_SLACK_JSON)
+        bad_slack_json['text'][0] = 'fakecoin'
+
+        req = self.client.post(
+            url_for('coinquote'),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            data=bad_slack_json
+        )
+
+        jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
+        assert req.json['text'] == '/shrug Can\'t resolve \'[\'fakecoin\']\''

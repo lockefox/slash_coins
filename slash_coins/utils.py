@@ -76,7 +76,6 @@ def which_platform(
             form['team_domain'][0]
         )
     else:
-        logger.warning('Unable to decipher chat platform')
         mode = ChatPlatform.UNKNOWN
 
     if mode == ChatPlatform.UNKNOWN:
