@@ -105,7 +105,7 @@ def generate_platform_response(
 
     """
     if mode == ChatPlatform.hipchat:
-        if do_code:
+        if do_code:  # pragma: no cover
             message = '/code {}'.format(message)
         return {
             'color': color,
@@ -116,7 +116,7 @@ def generate_platform_response(
 
     if mode == ChatPlatform.slack:
         main_message = message
-        if do_code:
+        if do_code:  # pragma: no cover
             main_message = '`{}`'.format(message)
         response = {
             'text': main_message,

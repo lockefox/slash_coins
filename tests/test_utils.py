@@ -4,6 +4,7 @@ import copy
 
 import pytest
 import helpers
+import jsonschema
 
 import slash_coins.utils as utils
 import slash_coins.exceptions as exceptions
@@ -65,4 +66,32 @@ class TestPlatform:
                 request_data={},
                 form_data=bad_slack_payload,
                 contents_required=True
+            )
+
+class TestGeneratePlatformResponse:
+    """validate utils.generate_platform_response()"""
+    def test_generate_platform_response_slack(self):
+        """validate slack response is correct -- SLACK"""
+        response = utils.generate_platform_response(
+            'test message',
+            utils.ChatPlatform.slack
+        )
+
+        jsonschema.validate(response, helpers.SLACK_RESPONSE_SCHEMA)
+
+    def test_generage_platform_response_hipchat(self):
+        """validate hipchat response is correct -- HipChat"""
+        response = utils.generate_platform_response(
+            'test message',
+            utils.ChatPlatform.hipchat
+        )
+
+        jsonschema.validate(response, helpers.HIPCHAT_RESPONSE_SCHEMA)
+
+    def test_generage_platform_response_bad_platform(self):
+        """validate bad-platform exception"""
+        with pytest.raises(exceptions.UnknownChatPlatform):
+            response = utils.generate_platform_response(
+                'test message',
+                utils.ChatPlatform.UNKNOWN
             )
