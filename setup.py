@@ -85,7 +85,7 @@ with open('README.rst', 'r', 'utf-8') as f:
 
 setup(
     name=__package_name__,
-    description='HipChat /command REST API For CryptoCoin Quotes',
+    description='Chat /command REST API For CryptoCoin Quotes',
     version=get_version(__library_name__),
     long_description=README,
     author='John Purcell',
@@ -93,7 +93,6 @@ setup(
     url='https://github.com/lockefox/' + __package_name__,
     license='MIT',
     classifiers=[
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
     keywords='prosper flask rest hipchat cryptocurrency integration',
@@ -101,7 +100,6 @@ setup(
     include_package_data=True,
     data_files=[
         ('docs', include_all_subfiles('docs')),
-        #('scripts'), include_all_subfiles('scripts'),
     ],
     package_data={
         '': ['LICENSE', 'README.rst', 'changelog'],
