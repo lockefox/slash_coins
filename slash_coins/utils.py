@@ -42,8 +42,11 @@ def which_platform(
         args = json.loads(request_data)
     except Exception:
         args = {}
+
+    is_slack = False
     try:
         form = dict(form_data)
+        is_slack = bool('hooks.slack.com/commands' in form['response_url'][0])
     except Exception:
         form = {}
 
@@ -62,7 +65,7 @@ def which_platform(
             args['item']['room']['links']['self']
         )
 
-    elif 'hooks.slack.com/commands' in form['response_url'][0]:
+    elif is_slack:
         # TODO: validate slack token
         mode = ChatPlatform.slack
         commands = form['text'][0].split()
@@ -77,7 +80,7 @@ def which_platform(
         mode = ChatPlatform.UNKNOWN
 
     if mode == ChatPlatform.UNKNOWN:
-        raise exceptions.UnkownChatPlatform('Unable to parse which chat /command came from')
+        raise exceptions.UnknownChatPlatform('Unable to parse which chat /command came from')
     if not commands and contents_required:
         raise exceptions.NoCommandsFound('Empty command string recieved')
 
