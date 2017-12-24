@@ -95,3 +95,19 @@ class TestGeneratePlatformResponse:
                 'test message',
                 utils.ChatPlatform.UNKNOWN
             )
+
+def test_name_to_slack_color():
+    """validate translation"""
+    assert utils.name_to_slack_color('green') == 'good'
+    assert utils.name_to_slack_color('yellow') == 'warning'
+    assert utils.name_to_slack_color('red') == 'danger'
+
+    assert utils.name_to_slack_color('random') == ''
+
+def test_bot_fail_message():
+    """validate fail decoration"""
+    assert '/shrug' in utils.bot_fail_message('butts', utils.ChatPlatform.slack)
+
+    assert '(shrug)' in utils.bot_fail_message('butts', utils.ChatPlatform.hipchat)
+
+    assert utils.bot_fail_message('butts', utils.ChatPlatform.UNKNOWN) == 'butts'
