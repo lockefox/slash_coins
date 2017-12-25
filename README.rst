@@ -11,14 +11,13 @@ A REST API for publishing quick /commands for HipChat rooms.  Feed those coinbug
 Routes
 ======
 
-- ``/quote``: generate a coin quote
-- ``/docs``: see current Documentation
+- ``/coins``: generate a coin quote from `cryptocompare`_
 - ``/version``: see current version/heath status 
 
 Getting Started
 ===============
 
-Only supports Python 3.5+
+Only supports Python 3.6+
 
 Developers
 ----------
@@ -52,5 +51,5 @@ TODO: more docker information
 .. |Coverage Status| image:: https://coveralls.io/repos/github/lockefox/slash_coins/badge.svg?branch=master
     :target: https://coveralls.io/github/lockefox/slash_coins?branch=master
 .. |Docs| image:: https://readthedocs.org/projects/slash_coins/badge/?version=latest
-   :target: http://slash_coins.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+    :target: http://slash_coins.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
