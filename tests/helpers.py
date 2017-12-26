@@ -5,9 +5,13 @@ from collections import OrderedDict
 
 import shortuuid
 
+import prosper.common.prosper_config as p_config
+
 
 HERE = path.abspath(path.dirname(__file__))
 ROOT = path.dirname(HERE)
+
+APP_CONFIG = p_config.ProsperConfig(path.join(ROOT, 'slash_coins', 'app.cfg'))
 
 SAMPLE_HIPCHAT_JSON = {
     'event': 'room_message',

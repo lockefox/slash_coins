@@ -62,6 +62,7 @@ class PyTest(TestCommand):
         self.pytest_args = [
             'tests',
             '-rx',
+            '-m', 'not docker',
             '--cov=' + __library_name__,
             '--cov-report=term-missing',
             '--cov-config=.coveragerc'
@@ -78,6 +79,19 @@ class PyTest(TestCommand):
             pytest_commands = self.pytest_args
         errno = pytest.main(pytest_commands)
         exit(errno)
+
+class TravisTest(PyTest):
+    """wrapper for running travis with extra modes"""
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = [
+            'tests',
+            '-rx',
+            '--cov=' + __library_name__,
+            '--cov-report=term-missing',
+            '--cov-config=.coveragerc'
+        ]
+
 
 with open('README.rst', 'r', 'utf-8') as f:
     README = f.read()
@@ -135,5 +149,6 @@ setup(
     },
     cmdclass={
         'test':PyTest,
+        'travis_test': TravisTest,
     }
 )
