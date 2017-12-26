@@ -39,3 +39,6 @@ Indices and tables
     :target: https://travis-ci.org/lockefox/slash_coins
 .. |Coverage Status| image:: https://coveralls.io/repos/github/lockefox/slash_coins/badge.svg?branch=master
     :target: https://coveralls.io/github/lockefox/slash_coins?branch=master
+.. |Docs| image:: https://readthedocs.org/projects/slash-coins/badge/?version=latest
+:target: http://slash-coins.readthedocs.io/en/latest/?badge=latest
+:alt: Documentation Status
