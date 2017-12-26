@@ -37,7 +37,7 @@ Deployment
 .. code-block::
     
     docker build -t slash-coins -f Dockerfile .
-    docker run -d -v scripts/:/opt/slash_coins/cfg -p 8000:8000 slash-coins
+    docker run -d -v scripts/:/opt/slash_coins/config -p 8000:8000 slash-coins
 
 TODO: more docker information
 
