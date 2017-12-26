@@ -6,7 +6,30 @@ SlashCoins
 
 |Build Status| |Coverage Status| |Docs|
 
-A REST API for publishing quick /commands for HipChat rooms.  Feed those coinbugs up-to-date quotes for their favorite cryptocoins c/o `cryptocompare`_
+A REST API for publishing quick /commands for HipChat and Slack rooms.  Feed those coinbugs up-to-date quotes for their favorite cryptocoins c/o `cryptocompare`_
+
+Want to use it right now?  Point your integration at:
+
+    `https://lockefox.pythonanywhere.com/coins`_ 
+
+    Then use ``/command COINTICKER CURRENCY[optional]``
+
+Deploy Your Own
+===============
+
+Tools have been included to deploy your own via Docker!
+
+.. code-block::
+    
+    docker build -t slash-coins -f Dockerfile .
+    docker run -d -p 8000:8000 slash-coins
+
+Customize with docker ENV flags
+
+- ``PROSPER_LOGGING__discord_webhook``: log error messages to Discord
+- ``PROSPER_LOGGING__slack_webhook``: log error messages to Slack
+- ``PROSPER_LOGGING__hipchat_webhook``: log error messages to HipChat 
+- ``PROSPER_FLASK__port``: change outgoing Flask port
 
 Routes
 ======
@@ -14,32 +37,20 @@ Routes
 - ``/coins``: generate a coin quote from `cryptocompare`_
 - ``/version``: see current version/heath status 
 
-Getting Started
-===============
+For Developers
+==============
 
 Only supports Python 3.6+
-
-Developers
-----------
 
 .. code-block::
     
     pip install -e .
-    cp scripts/app.cfg scripts/app_local.cfg
-    ## fill out app secrets in scripts/app_local.cfg ##
-    slash_coins debug 
+    cp slash_coins/app.cfg slash_coins/app_local.cfg
+    ## fill out app secrets in slash_coins/app_local.cfg ##
+    slash_coin_launcher -v -d --config=slash_coins/app_local.cfg
 
 Install requirements in a `virtualenv`_ and use the built-in launcher to run on ``localhost``.
 
-Deployment
-----------
-
-.. code-block::
-    
-    docker build -t slash-coins -f Dockerfile .
-    docker run -d -v scripts/:/opt/slash_coins/config -p 8000:8000 slash-coins
-
-TODO: more docker information
 
 .. _cryptocompare: cryptocompare.com/api/#introduction
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
