@@ -9,7 +9,7 @@ python:
 before_install:
   - "docker build -t slash-coin -f Dockerfile ."
   - "cp slash_coins/app.cfg slash_coins/app_local.cfg"
-  - "docker run -v `pwd`/slash_coins/:/opt/slash_coins/config/ -p 8000:8000 --name=slash_coins slash-coin-test"
+  - "docker run -v `pwd`/slash_coins/:/opt/slash_coins/config/ -p 8000:8000 --name=slash_coins slash-coin"
 install: 
   - "pip install ."
 script:
