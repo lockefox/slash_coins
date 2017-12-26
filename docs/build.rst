@@ -7,7 +7,7 @@ Only supports Python 3.6+.  Designed to respond seemlessly to both HipChat & Sla
 Direct Install
 --------------
 
-.. code-block::
+.. code-block:: shell
     
     pip install -e .
     slash_coin_launcher -v -d
@@ -21,7 +21,7 @@ Dockerfile
 
 Tools have been included to deploy your own via Docker!  Built off `Optimized Python`_ Docker image.
 
-.. code-block::
+.. code-block:: shell
     
     docker build -t slash-coins -f Dockerfile .
     docker run -d -p 8000:8000 slash-coins
