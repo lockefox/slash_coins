@@ -1,8 +1,15 @@
+sudo: required
+services:
+  - docker
 language: python
 python:
 #  - "3.5"
   - "3.6"
   - "3.6-dev" # 3.6 development branch
+before_install:
+  - "docker build -t slash-coin-test -f Dockerfile ."
+  - "cp slash_coins/app.cfg slash_coins/app_local.cfg"
+  - "docker run -v `pwd`/slash_coins/:/opt/slash_coins/config/ -p 8000:8000 --name=slash_coins slash-coin-test"
 install: 
   - "pip install ."
 script:
