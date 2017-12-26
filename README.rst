@@ -10,7 +10,7 @@ A REST API for publishing quick /commands for HipChat and Slack rooms.  Feed tho
 
 Want to use it right now?  Point your integration at:
 
-    `https://lockefox.pythonanywhere.com/coins`_ 
+    https://lockefox.pythonanywhere.com/coins
 
     Then use ``/command COINTICKER CURRENCY[optional]``
 
