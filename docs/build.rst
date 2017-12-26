@@ -1,6 +1,6 @@
-===================
-Building SlashCoins
-===================
+====================
+Building Slash_Coins
+====================
 
 Only supports Python 3.6+.  Designed to respond seemlessly to both HipChat & Slack requests.
 
