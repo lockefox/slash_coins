@@ -133,8 +133,8 @@ class StockQuote(Resource):
 
         logger.debug('%s -- %s', score, url)
 
-
+        print_cols = ['name', 'current_price', 'change_pct']
         return utils.generate_platform_response(
-            '{} \n {} ({})'.format(' '.join(list(map(str, quote_df.iloc[0]))), url, score),
+            '{} \n{}'.format(' '.join(list(map(str, quote_df.loc[0, print_cols]))), url),
             mode
         )
