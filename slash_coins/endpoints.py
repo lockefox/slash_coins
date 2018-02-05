@@ -117,16 +117,19 @@ class StockQuote(Resource):
 
         direction = float(quote_df.iloc[0]['change_pct'].replace('%', ''))
         url = ''
+        headline = ''
         score = 0.0
         if direction > 0:  # pragma: no cover
             logger.info('--parsing positive news')
             best_article = news_df[news_df['compound'] == max(news_df['compound'])]
             url = best_article.iloc[0]['link']
+            headline = best_article.iloc[0]['title']
             score = best_article.iloc[0]['compound']
         elif direction < 0:  # pragma: no cover
             logger.info('--parsing negative news')
             best_article = news_df[news_df['compound'] == min(news_df['compound'])]
             url = best_article.iloc[0]['link']
+            headline = best_article.iloc[0]['title']
             score = best_article.iloc[0]['compound']
         else:  # pragma: no cover
             logger.warning('--neutral news -- unsupported')
@@ -134,7 +137,19 @@ class StockQuote(Resource):
         logger.debug('%s -- %s', score, url)
 
         print_cols = ['name', 'current_price', 'change_pct']
+        response = ''
+        if mode == utils.ChatPlatform.hipchat:
+            response = '{quote}\n{headline}\n{url}'.format(
+                quote=' '.join(list(map(str, quote_df.loc[0, print_cols]))),
+                headline=headline,
+                url=url
+            )
+        elif mode == utils.ChatPlatform.slack:
+            response = '{quote}\n{url}'.format(
+                quote=' '.join(list(map(str, quote_df.loc[0, print_cols]))),
+                url=url
+            )
         return utils.generate_platform_response(
-            '{} \n{}'.format(' '.join(list(map(str, quote_df.loc[0, print_cols]))), url),
+            response,
             mode
         )
