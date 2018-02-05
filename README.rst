@@ -36,6 +36,7 @@ Routes
 
 - ``/coins``: generate a coin quote from `cryptocompare`_
 - ``/version``: see current version/heath status 
+- ``/stocks``: get stock quote from `Robinhood`_ and relevant news headline
 
 For Developers
 ==============
@@ -54,6 +55,7 @@ Install requirements in a `virtualenv`_ and use the built-in launcher to run on 
 
 .. _cryptocompare: cryptocompare.com/api/#introduction
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+.. _Robinhood: https://www.robinhood.com/
 
 .. |Show Logo| image:: http://dl.eveprosper.com/podcast/logo-colour-17_sm2.png
    :target: http://eveprosper.com

@@ -15,7 +15,9 @@ Try it now!  Point your /command integration at:
     
     https://lockefox.pythonanywhere.com/coins
 
-Then ``/[command] COINTICKER CURRENCY(optional)`` should yield the latest quote for your favorite cryptocoin.
+Then ``/[coin-command] COINTICKER CURRENCY(optional)`` should yield the latest quote for your favorite cryptocoin.
+
+Also supports ``/[stock-command] STOCKTICKER`` for quotes and news from `Robinhood`_
 
 Deploy Your Own
 ===============
@@ -36,6 +38,7 @@ Index
     build.rst
 
 .. _cryptocompare: cryptocompare.com/api/#introduction
+.. _Robinhood: https://www.robinhood.com/
 .. _build: build.html
 
 .. |Show Logo| image:: http://dl.eveprosper.com/podcast/logo-colour-17_sm2.png
