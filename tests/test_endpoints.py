@@ -109,3 +109,33 @@ class TestCoinQuoteEndpoint:
 
         jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
         assert req.json['text'] == '/shrug Can\'t resolve \'[\'fakecoin\']\''
+
+
+@pytest.mark.usefixtures('client_class')
+class TestStockQuoteEndpoint:
+    """validate /stocks response"""
+    def test_stockquote_happypath_hipchat(self):
+        """test /stocks normal behavior -- HIPCHAT"""
+        hipchat_json = copy.deepcopy(helpers.SAMPLE_HIPCHAT_JSON)
+        hipchat_json['item']['message']['message'] = '/test AAPL'
+
+        req = self.client.post(
+            url_for('stockquote'),
+            data=json.dumps(hipchat_json)
+        )
+        jsonschema.validate(req.json, helpers.HIPCHAT_RESPONSE_SCHEMA)
+        assert ' Apple ' in req.json['message']
+
+    def test_stockquote_happypath_slack(self):
+        """test /stocks normal behavior -- SLACK"""
+        slack_json = copy.deepcopy(helpers.SAMPLE_SLACK_JSON)
+        slack_json['text'] = ['AAPL']
+
+        req = self.client.post(
+            url_for('stockquote'),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            data=slack_json
+        )
+
+        jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
+        assert ' Apple ' in req.json['text']

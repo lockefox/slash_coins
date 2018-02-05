@@ -19,6 +19,7 @@ APP = Flask(_version.PROGNAME)
 API = Api(APP)
 API.add_resource(endpoints.Version, '/version')
 API.add_resource(endpoints.CoinQuote, '/coins')
+API.add_resource(endpoints.StockQuote, '/stocks')
 
 def build_logger_pythonanywhere(
         config_path,

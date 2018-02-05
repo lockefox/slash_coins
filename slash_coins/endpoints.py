@@ -10,6 +10,9 @@ from flask import request
 from flask_restful import Resource
 
 import prosper.datareader.coins as coins
+import prosper.datareader.stocks as stocks
+import prosper.datareader.news as news
+import prosper.datareader.utils as pdr_utils
 from . import _version
 from . import exceptions
 from . import utils
@@ -52,7 +55,7 @@ class CoinQuote(Resource):
         # Figure out what's coming in #
         try:
             mode, commands = utils.which_platform(
-                request.data, request.form, contents_required=True,logger=logger
+                request.data, request.form, contents_required=True, logger=logger
             )
         except Exception:
             logger.warning('COINQUOTE -- INVALID PLATFORM REQUEST', exc_info=True)
@@ -86,3 +89,52 @@ class CoinQuote(Resource):
         logger.info('quote: `%s`', message)
 
         return utils.generate_platform_response(message, mode, do_code=True)
+
+class StockQuote(Resource):
+    """generate quote and news article for stock"""
+    def post(self):
+        """HTTP POST behavior"""
+        logger = logging.getLogger(_version.PROGNAME)
+        try:
+            mode, commands = utils.which_platform(
+                request.data, request.form, contents_required=True, logger=logger
+            )
+        except Exception:
+            logger.warning('STOCKQUOTE -- INVALID PLATFORM REQUEST', exc_info=True)
+            return
+
+        try:
+            ticker = commands[0].upper()
+            quote_df = stocks.get_quote_rh(ticker)
+            news_df = news.company_headlines_yahoo(ticker)
+            news_df = pdr_utils.vader_sentiment(news_df, 'title', logger=logger)
+        except Exception:
+            logger.warning('STOCKQUOTE -- unable to get quote/news `%s`', ticker, exc_info=True)
+            return utils.generate_platform_response(
+                utils.bot_fail_message('Can\'t resolve \'{}\''.format(commands), mode),
+                mode
+            )
+
+        direction = float(quote_df.iloc[0]['change_pct'].replace('%', ''))
+        url = ''
+        score = 0.0
+        if direction > 0:
+            logger.info('--parsing positive news')
+            best_article = news_df[news_df['compound'] == max(news_df['compound'])]
+            url = best_article.iloc[0]['link']
+            score = best_article.iloc[0]['compound']
+        elif direction < 0:
+            logger.info('--parsing negative news')
+            best_article = news_df[news_df['compound'] == min(news_df['compound'])]
+            url = best_article.iloc[0]['link']
+            score = best_article.iloc[0]['compound']
+        else:
+            logger.warning('--neutral news -- unsupported')
+
+        logger.debug('%s -- %s', score, url)
+
+
+        return utils.generate_platform_response(
+            '{} \n {} ({})'.format(' '.join(list(map(str, quote_df.iloc[0]))), url, score),
+            mode
+        )
