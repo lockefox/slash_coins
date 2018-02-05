@@ -124,7 +124,7 @@ class TestStockQuoteEndpoint:
             data=json.dumps(hipchat_json)
         )
         jsonschema.validate(req.json, helpers.HIPCHAT_RESPONSE_SCHEMA)
-        assert ' Apple ' in req.json['message']
+        assert 'Apple Inc.' in req.json['message']
 
     def test_stockquote_happypath_slack(self):
         """test /stocks normal behavior -- SLACK"""
@@ -138,7 +138,7 @@ class TestStockQuoteEndpoint:
         )
 
         jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
-        assert ' Apple ' in req.json['text']
+        assert 'Apple Inc.' in req.json['text']
 
     def test_stockquote_unkown(self):
         """test empty behavior -- SLACK"""
