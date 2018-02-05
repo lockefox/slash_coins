@@ -118,17 +118,17 @@ class StockQuote(Resource):
         direction = float(quote_df.iloc[0]['change_pct'].replace('%', ''))
         url = ''
         score = 0.0
-        if direction > 0:
+        if direction > 0:  # pragma: no cover
             logger.info('--parsing positive news')
             best_article = news_df[news_df['compound'] == max(news_df['compound'])]
             url = best_article.iloc[0]['link']
             score = best_article.iloc[0]['compound']
-        elif direction < 0:
+        elif direction < 0:  # pragma: no cover
             logger.info('--parsing negative news')
             best_article = news_df[news_df['compound'] == min(news_df['compound'])]
             url = best_article.iloc[0]['link']
             score = best_article.iloc[0]['compound']
-        else:
+        else:  # pragma: no cover
             logger.warning('--neutral news -- unsupported')
 
         logger.debug('%s -- %s', score, url)

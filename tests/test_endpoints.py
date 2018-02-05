@@ -139,3 +139,38 @@ class TestStockQuoteEndpoint:
 
         jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
         assert ' Apple ' in req.json['text']
+
+    def test_stockquote_unkown(self):
+        """test empty behavior -- SLACK"""
+        req = self.client.post(
+            url_for('stockquote'),
+            data=''
+        )
+        assert not req.json
+
+    def test_stockquote_bad_ticker_hipchat(self):
+        """validate /stocks bad behavior -- HIPCHAT"""
+        bad_hipchat_json = copy.deepcopy(helpers.SAMPLE_HIPCHAT_JSON)
+        bad_hipchat_json['item']['message']['message'] = '/test BUTTS'
+
+        req = self.client.post(
+            url_for('stockquote'),
+            data=json.dumps(bad_hipchat_json)
+        )
+
+        jsonschema.validate(req.json, helpers.HIPCHAT_RESPONSE_SCHEMA)
+        assert req.json['message'] == 'Can\'t resolve \'[\'BUTTS\']\' (shrug)'
+
+    def test_stockquote_bad_ticker_slack(self):
+        """validate unkown ticker -- SLACK"""
+        bad_slack_json = copy.deepcopy(helpers.SAMPLE_SLACK_JSON)
+        bad_slack_json['text'][0] = 'BUTTS'
+
+        req = self.client.post(
+            url_for('stockquote'),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            data=bad_slack_json
+        )
+
+        jsonschema.validate(req.json, helpers.SLACK_RESPONSE_SCHEMA)
+        assert req.json['text'] == '/shrug Can\'t resolve \'[\'BUTTS\']\''
